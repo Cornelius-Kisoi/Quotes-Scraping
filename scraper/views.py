@@ -10,6 +10,9 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 
+def home(request):
+    return redirect('/api/login/')
+
 # Account creation
 def signup_view(request):
     if request.method == "POST":
