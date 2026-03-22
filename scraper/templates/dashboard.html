@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotes Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: #0f172a;
+        color: #f1f5f9;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+    .card-title {
+        font-weight: bold;
+    }
+    .container {
+        margin-top: 40px;
+    }
+    .btn-custom {
+        background-color: #22c55e;
+        color: #ffffff;
+    }
+    .btn-custom:hover {
+        background-color: #16a34a;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="text-end">Logged in as {{ request.user.username }} | 
+            <a href="/api/logout/" class="text-danger">Logout</a>
+        </div>
+
+        <h1 class="text-center mb-4">📊Quotes Dashboard</h1>
+        <form method="GET" class="mb-4">
+            <input type="text" name="q" placeholder="Search by author..." class="form-control">
+        </form>
+
+        <div class="row">
+            <!-- Total Quotes card -->
+             <div class="col-md-4">
+                <div class="card bg-dark text-white shadow p-3">
+                    <h5 class="card-title">Total Quotes</h5>
+                    <h2>{{ total_quotes }}</h2>
+                </div>
+             </div>
+
+             <!-- Top Tags card -->
+              <div class="col-md-8">
+                <div class="card bg-dark text-white shadow p-3">
+                    <h5 class="card-title">Top Tags</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for tag, count in top_tags %}
+                        <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                            <span>{{ tag }}</span>
+                            <span class="badge bg-success">{{ count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card bg-dark text-white p-3">
+                            <h5 class="card-title">Top Tags Chart</h5>
+                            <canvas id="tagsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card bg-dark text-white p-3">
+                            <h5 class="card-title">Top Authors</h5>
+                            <canvas id="authorsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/api/scrape/" class="btn btn-custom">🔄 Scrape More Data</a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+       // Tags Data 
+        const tags = {{ tags_json|safe }};
+        const counts = {{ counts_json|safe }};
+
+        // Authors Data
+        const authors = {{ authors_json|safe }};
+        const authorCounts = {{ author_counts_json|safe }};
+
+
+        const ctx = document.getElementById('tagsChart').getContext('2d');
+
+        const ctx2 = document.getElementById('authorsChart').getContext('2d');
+
+        // Tags Chart
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: tags,
+                datasets: [{
+                    label: 'Top Tags',
+                    data: counts,
+                    backgroundColor: '#22c55e'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white'}
+                    },
+                    y: {
+                        ticks: { color: 'white '}
+                    }
+                }
+            }
+        });
+
+        // Authors Chart
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: authors,
+                datasets: [{
+                    label: 'Top Authors',
+                    data: authorCounts,
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white'}
+                    },
+                    y: {
+                        ticks: { color: 'white'}
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
